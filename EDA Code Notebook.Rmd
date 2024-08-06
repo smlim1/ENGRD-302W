@@ -1,0 +1,371 @@
+---
+title: "EDA Code Notebook"
+author: "Samantha Lim"
+date: "2024-08-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+### Introduction: The U.S. Department of Education College Scorecard dataset is a resource that provides detailed information about various higher education institutions across the United States. This dataset includes a wide range of variables, such as institutional characteristics, student demographics, academic programs, financial aid, and post-graduation outcomes. Our motivation for analyzing this dataset stems from the need to provide prospective students and educators with valuable insights into the performance and characteristics of U.S. colleges and universities. By examining factors such as admission rates, average SAT/ACT scores, tuition costs, graduation rates, and post-graduation earnings, we aim to evaluate institutional performance and promote transparency. 
+
+
+```{r}
+install.packages("evaluate")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+renv::snapshot()
+renv::restore()
+renv::hydrate()
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+```{r}
+# load dataset
+# source: https://collegescorecard.ed.gov/data/
+# technical documentation and explanation of dataset: https://collegescorecard.ed.gov/assets/InstitutionDataDocumentation.pdf
+
+library(readr)
+data <- read_csv("Data/Most-Recent-Cohorts-Institution.csv")
+```
+
+
+```{r}
+# select variables of interest: instituition type, graduation rates, retention rates, tuition costs, admission rates, financial aid, median earnings
+data <- data[, c("INSTNM", "CONTROL", "STABBR", "C100_4", "C100_L4", "RET_FT4", "RET_FTL4", "TUITFTE", "ADM_RATE", "PCTFLOAN_DCS", "MD_EARN_WNE_P10")]
+
+# rename variables
+names(data) <- c("INSTNM", "INST", "STABBR", "GRAD_4", "GRAD<4", "RET_4", "RET<4", "TUITFTE", "ADM_RATE", "PCTFLOAN", "MD_EARN_WNE_P10")
+
+# Variables
+# INSTNM is a variable that gives the institution’s name.
+# CONTROL has been changed to INST to describe the type of institution it is. It can either be a public, private non-profit or private for-profit institution.
+# STABBR or state abbreviation refers to the institution’s location
+# C100_4 has been renamed to GRAD_4 which refers to the completion or graduation rate of the students who have finished within the expected time for four-year institutions.
+# C100_L4 has been renamed to GRAD<4 which refers to the completion or graduation rate of students that institutions report on whether or not a first time, full time student completes their degree within 100% of the expected timing for less than four-year institutions.
+# RET_FT4 has been renamed to RET_4 to represent the retention rate of full time students at a four year institution.
+# RET_FTL4 has been renamed to RET<4 to represent the retention rate of full time students at an institution that is less than four years
+# TUITFTE is the tuition revenue per full-time equivalent (FTE) student
+# ADM_RATE is the admission rate of an institution
+# PCTFLOAN_DCS is the proportion of graduates who have received a federal loan
+# MD_EARN_WNE_P10 this refers to the median earnings of a graduate after ten years of enrollment at their institution
+
+```
+
+```{r}
+# graduation rates by insitution type
+# 4-year institutions
+library(dplyr)
+graduation_rates <- data %>%
+  group_by(INST) %>%
+  summarize(avg_grad_rate = mean(GRAD_4, na.rm = TRUE))
+print(graduation_rates)
+
+# < 4-year institutions
+graduation_rates <- data %>%
+  group_by(INST) %>%
+  summarize(avg_grad_rate = mean(`GRAD<4`, na.rm = TRUE))
+print(graduation_rates)
+```
+```{r}
+# Average Graduation Rate
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# In both four-year and less than four-year institutions, public and private for-profit institutions have similar graduation rates while private non-profit institutions have higher graduation rates. Private non-profit institutions have graduation rates nearly ten percent more. These findings may guide students to look for private non-profit universities when considering college applications or feelings of indifference when comparing the graduation rates between public and private for-profit institutions.
+```
+
+```{r}
+# retention rates by insitution type
+# 4-year institutions
+retention_rates <- data %>%
+  group_by(INST) %>%
+  summarize(avg_ret_rate = mean(RET_4, na.rm = TRUE))
+print(retention_rates)
+
+# < 4-year institutions
+retention_rates <- data %>%
+  group_by(INST) %>%
+  summarize(avg_ret_rate = mean(`RET<4`, na.rm = TRUE))
+print(retention_rates)
+```
+```{r}
+# Average Retention Rate
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# Four-year private non-profit institutions have the highest retention rates, followed closely by four-year public institutions. However, retention rates for four-year private for-profit universities fall 14% below that of the leading institutions. This may suggest that tuition pricing may be a significant factor in retention rates because private for-profit tuition fees are significantly higher than public tuition fees. There may be other factors that may cause students to transfer or drop out of the institution.
+# However for less that four year institutions, private for-profit institutions have the highest retention rates, followed by private non-profit and public institutions. 
+```
+
+
+```{r}
+# Tuition Costs by Institution Type
+library(ggplot2)
+ggplot(data, aes(x = INST, y = TUITFTE)) +
+  geom_col() +
+  labs(title = "Tuition Costs by Institution Type", x = "Institution Type", y = "Tuition")
+```
+```{r}
+#Tuition Costs by Institution Type
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# Institution Types 2 and 3 are similar in price, while Type 1 is significantly cheaper. Public schools are significantly cheaper than private universities. When choosing which university to attend, students often consider tuition costs as an important contributor. 
+```
+
+```{r}
+# Admission Rate by Institution Type
+library(ggplot2)
+ggplot(data, aes(x = INST, y = ADM_RATE)) +
+  geom_col() +
+  labs(title = "Admission Rate by Institution Type", x = "Institution Type", y = "Admission Rate")
+```
+```{r}
+# Admission Rate by Institution Type
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# Institution Type 2 has the highest admission rate, while Type 3 has the lowest. This may be surprising because there are many prestigious private non-profit universities that have low acceptance rates. 
+
+```
+
+```{r}
+# Percentage of Students Receiving Federal Loan by Institution Type
+library(ggplot2)
+ggplot(data, aes(x = INST, y = PCTFLOAN)) +
+  geom_col() +
+  labs(title = "Percentage of Students Receiving Financial Aid by Institution Type", x = "Institution Type", y = "Percentage of Students Receiving Financial Aid")
+```
+```{r}
+# Proportion of Students Receiving Financial Aid by Institution Type
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# Private for-profit institutions have the largest proportion of students receiving financial aid, followed by private non-profit and public institutions. This may be the result in funding and allotment of financial aid. Public schools may not have as much money to give out loans. 
+```
+
+```{r}
+# Median Earnings 10 Years After Graduation By Institution Type
+ggplot(data, aes(x = INST, y = MD_EARN_WNE_P10)) +
+  geom_col() +
+  labs(title = "Median Earnings 10 Years After Graduation By Institution Type", x = "Institution Type", y = "Median Earnings")
+```
+```{r}
+# Median Earnings 10 Years After Graduation by Institution Type
+# INST 1 (public), INST 2 (private non-profit), INST 3 (private for-profit institution)
+# Public institutions have students with the highest median earnings suggesting that tuition cost may not affect future earnings. College applicants may decide to pursue public universities with lower tuition fees. Other factors like number of student enrollment, location, and size may also affect the median earnings between institutions.
+```
+
+
+```{r}
+# Admission Rate by State
+# Highest Admission Rates
+# Calculate the mean admission rate by state
+state_adm_rate <- data %>%
+  group_by(STABBR) %>%
+  summarise(mean_adm_rate = mean(ADM_RATE, na.rm = TRUE))
+
+# View the aggregated data
+head(state_adm_rate)
+
+# Select the top 10 states by mean admission rate
+top_10_states <- state_adm_rate %>%
+  arrange(desc(mean_adm_rate)) %>%
+  head(10)
+
+# View the top 10 states
+print(top_10_states)
+
+# Plot the top 10 states by mean admission rate
+ggplot(top_10_states, aes(x = reorder(STABBR, -mean_adm_rate), y = mean_adm_rate)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +  # Flip coordinates for better readability
+  labs(title = "Top 10 States by Mean Admission Rate",
+       x = "State",
+       y = "Mean Admission Rate") +
+  theme_minimal()
+```
+```{r}
+# Top 10 States With the Highest Admission Rate
+# The states with the highest admission rate include Virginia, Wyoming, Nevada, West Virginia, New Hampshire, Arizona, Idaho, South Dakota, Washington, and Utah. These states contain the universities with the highest acceptance rates. However, these results may vary based on the number of universities in the state and number of applications. 
+```
+
+```{r}
+# Admission Rate by State
+# Lowest Admission Rates
+# Calculate the mean admission rate by state
+state_adm_rate <- data %>%
+  group_by(STABBR) %>%
+  summarise(mean_adm_rate = mean(ADM_RATE, na.rm = TRUE))
+
+# View the aggregated data
+head(state_adm_rate)
+
+# Select the top 10 states by lowest mean admission rate
+top_10_states_low <- state_adm_rate %>%
+  arrange(mean_adm_rate) %>%
+  head(10)
+
+# View the top 10 states
+print(top_10_states_low)
+
+# Plot the states by mean admission rate
+ggplot(top_10_states_low, aes(x = reorder(STABBR, -mean_adm_rate), y = mean_adm_rate)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +  # Flip coordinates for better readability
+  labs(title = "Top 10 States with Lowest Mean Admission Rate",
+       x = "State",
+       y = "Mean Admission Rate") +
+  theme_minimal()
+```
+```{r}
+# Top 10 States with Lowest Mean Admission Rate
+# The following table shows which schools have the lowest mean admission rates. Massachusetts, Rhode Island and Connecticut are among the top states with the lowest admission rates. All of the states within this table are Northern states. There are many elite colleges in the North such as Harvard, Yale, MIT and Brown. However, this may also suggest that it is harder to get into its state colleges and universities such as UMass and University of Connecticut compared to other states in the country. These findings do suggest that these states have a plethora of elite colleges.
+```
+
+```{r}
+# Median Earnings by State
+# Highest Median Earnings
+# Calculate the median earnings 10 years post-grad by state
+state_earn_rate <- data %>%
+  group_by(STABBR) %>%
+  summarise(mean_med_earn_rate = mean(MD_EARN_WNE_P10, na.rm = TRUE))
+
+# View the aggregated data
+head(state_earn_rate)
+
+# Select the top 10 states by lowest mean admission rate
+top_10_earn_states <- state_earn_rate %>%
+  arrange(desc(mean_med_earn_rate)) %>%
+  head(10)
+
+# View the top 10 states
+print(top_10_earn_states)
+
+# Plot the top 10 states by mean admission rate
+ggplot(top_10_earn_states, aes(x = reorder(STABBR, -mean_med_earn_rate), y = mean_med_earn_rate)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +  # Flip coordinates for better readability
+  labs(title = "Top 10 States by Median Earnings",
+       x = "State",
+       y = "Median Earnings") +
+  theme_minimal()
+```
+```{r}
+# Top 10 States with Median Earnings
+# The following figure above shows the top ten states with the highest median earnings, with Massachusetts being the highest with it being close to $60,000. All of the states within the bar graph are Northern states. It is possible that since it is in the North where it is more expensive, the median earnings are aligned with the cost of living. However, this may also suggest that institutions within these states lead to high earning careers. Also, it may indicate that there is more money to be made in northern states. These results may also be dependent on the number of institutions within a state. 
+
+```
+
+
+```{r}
+# Scatter plot of percentage of financial aid vs. tuition cost
+ggplot(data, aes(x = PCTFLOAN * 100, y = TUITFTE)) +  # Convert percentage to 0-100 scale
+  geom_point() +
+  labs(title = "Association Between Percentage of Financial Aid and Tuition Cost",
+       x = "Percentage of Financial Aid (%)",
+       y = "Tuition Cost ($)") +
+  theme_minimal()
+```
+```{r}
+# Association Between Percentage of Financial Aid and Tuition Cost
+# This scatter plot implies that the tuition cost does not have a huge impact on the percentage of financial aid. However, there are some outliers on the left side of the chart showing that when the percentage of the financial aid is closer to zero percent, the tuition is higher. There are also a few outliers near the 50% and 75% range where it is seen that with more financial aid coverage, the tuition cost is still relatively high.
+```
+
+```{r}
+# Cost vs Post-Graduate Earnings
+# Schools with the Highest Post Graduate Earnings
+
+top_10_earnings <- data[, c("INSTNM", "MD_EARN_WNE_P10", "TUITFTE")] %>%
+  arrange(desc(MD_EARN_WNE_P10)) %>%
+  head(10)
+print(top_10_earnings)
+```
+```{r}
+# Schools with Highest Post Graduate Earnings
+# The following institutions are among one of the most prestigious in the country. Schools such as MIT, Stanford and CalTech dominate in engineering, which are high-earning jobs. There are also schools such as Franklin W Olin College of Engineering and Albany College of Pharmacy and Health Sciences that also yield in high post-graduate earnings. These findings suggest that an elite college does hold value within the job market. Additionally, attending institutions that focus on engineering and health sciences, both which are high earning fields, leads to high post graduate earnings. Lastly, these institutions' tuition lies between twenty-eight and thirty-five thousand dollars. However, with the median earnings ranging in between $124,000 and $144,000, it does seem worth the investment.
+```
+
+
+```{r}
+# Schools with the largest difference in cost and post-graduate earnings (best value)
+earn_diff <- data[, c("INSTNM", "MD_EARN_WNE_P10", "TUITFTE")] %>%
+  mutate(diff = data[["MD_EARN_WNE_P10"]]-(data[["TUITFTE"]]*4)) %>%
+  arrange(desc(diff)) %>%
+  head(10)
+
+print(earn_diff)
+```
+```{r}
+# Schools with the largest difference in cost and post-graduate earnings
+# The different values range between $60,000 and $100,000. Three of these schools are from the University of Connecticut, where tuition is under three thousand dollars. There are also three nursing schools. The Marine Academy costs nothing to attend, so it is among one of the best value schools. Surprisingly, the Jewish Theological Seminary is among one of the best value schools. The cost to attend these institutions ranges between zero and five thousand dollars, and leads to post-graduate earnings between $70,000 and $115,000. These findings suggest that state colleges and universities are the cheapest to attend. University of Connecticut is cheap to attend, but also is successful in placing its graduates with high earning jobs. Nursing is shown to be a lucrative career.
+```
+
+```{r}
+# Earnings vs. Tuition and Fees
+# Independent Variable: Tuition and Fees
+# Dependent Variable: Median Earnings
+
+# Plot
+ggplot(data, aes(x = TUITFTE, y = MD_EARN_WNE_P10)) +
+  geom_point() +
+  xlim(0,100000) +
+  ylim(0,150000) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Relationship Between Tuition and Median Earnings",
+       x = "Tuition and Fees ($)",
+       y = "Median Earnings 10 Years After Entry ($)") +
+  theme_minimal()
+```
+```{r}
+# This linear regression explores how the cost of education impacts future earnings. There seems to be a positive linear relationship between tuition fees and median earnings, suggesting higher earnings with more expensive institutions. 
+```
+
+```{r}
+# Earnings vs. Admission Rate
+# Independent Variable: Admission Rate
+# Dependent Variable: Median Earnings
+
+# Plot
+ggplot(data, aes(x = ADM_RATE, y = MD_EARN_WNE_P10)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Relationship Between Admission Rate and Median Earnings",
+       x = "Admission Rate (%)",
+       y = "Median Earnings 10 Years After Entry ($)") +
+  theme_minimal()
+```
+```{r}
+# This linear regression examines whether more selective institutions or those with lower admission rates produce graduates with higher earnings. There is a slight negative linear relationship between median earnings and admission rate, suggesting that selective institutions yield graduates with higher earnings. 
+```
+
+
+```{r}
+# CONCLUSION
+# In this exploration we have discovered a few factors that have an influence on an institution’s impact on post graduate earnings. Location, elitism, program types and affordability all play a role in determining how successful an institution truly is.
+# Northern states, particularly northeastern states, have been found to have the most selective institutions and have the highest mean in post-graduate earnings. The value of colleges in the North is something worth investigating. It is also important to note, however, that northern states are typically more expensive than southern states, so it is plausible that the earned incomes are adjusted accordingly.
+# Though elitism certainly appears to play a role in post-median earnings, the plot showing the best value colleges suggests the idea that institutions' programs play a big role in its graduate’s post earnings. Nursing, engineering and other careers in the medical field are found to have high earnings. Specialization certainly plays a role in post-graduate earnings.
+# One aspect we can further explore is affordability and its impacts on post-graduate earnings. Is accessibility a factor on a student’s post graduate experience?
+```
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
