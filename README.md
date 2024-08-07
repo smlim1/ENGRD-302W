@@ -1,9 +1,6 @@
 # ENGRD-302W
-*Instructions: Click on the raw button in the upper right hand corner of this box.  Copy and paste the template into the README.md document on your github.  Fill in the titles, information and links where prompted! Feel free to stray a bit to suit your project but try to stick to the format as closely as possible for consistency across DSWG projects.*
 
 # Tuition Affordability and Student Implications
-
-#### -- Project Status: [Active]
 
 ## Project Intro/Objective
 The rising cost of tuition in the United States has far outpaced household income growth, raising concerns about the affordability and accessibility of higher education. To address this issue, our exploratory data analysis (EDA) leverages the College Scorecard dataset to assess how well institutions prepare students for postgraduate success, particularly in terms of earnings. Our research examines key variables related to tuition affordability and its impact on postgraduate outcomes.
