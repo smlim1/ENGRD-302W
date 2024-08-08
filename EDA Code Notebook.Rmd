@@ -5,18 +5,10 @@ date: "2024-08-06"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## R Markdown
 
 ### Introduction: The U.S. Department of Education College Scorecard dataset is a resource that provides detailed information about various higher education institutions across the United States. This dataset includes a wide range of variables, such as institutional characteristics, student demographics, academic programs, financial aid, and post-graduation outcomes. Our motivation for analyzing this dataset stems from the need to provide prospective students and educators with valuable insights into the performance and characteristics of U.S. colleges and universities. By examining factors such as admission rates, average SAT/ACT scores, tuition costs, graduation rates, and post-graduation earnings, we aim to evaluate institutional performance and promote transparency. 
-
-
-```{r}
-install.packages("evaluate")
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -266,6 +258,8 @@ ggplot(top_10_earn_states, aes(x = reorder(STABBR, -mean_med_earn_rate), y = mea
 # Scatter plot of percentage of financial aid vs. tuition cost
 ggplot(data, aes(x = PCTFLOAN * 100, y = TUITFTE)) +  # Convert percentage to 0-100 scale
   geom_point() +
+  xlim(0,100) +
+  ylim(0,200000) +
   labs(title = "Association Between Percentage of Financial Aid and Tuition Cost",
        x = "Percentage of Financial Aid (%)",
        y = "Tuition Cost ($)") +
