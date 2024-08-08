@@ -36,10 +36,11 @@ Next Steps: We would like to explore additional factors that may contribute to t
 ## Data Source
 
 U.S. Department of Education College Scorecard: https://collegescorecard.ed.gov/data/
+
 Technical Documentation and Explanation of Dataset: https://collegescorecard.ed.gov/assets/InstitutionDataDocumentation.pdf
 
 ## Featured Notebooks/Analysis/Deliverables
-* Slide Deck: https://emory-my.sharepoint.com/:p:/g/personal/smlim_emory_edu/Ee6yakxV98xCjvAnf4F0QLoBiuw_m-x87KqnpkmMpjthxQ?e=opjnS5
+* Slide Deck: https://www.canva.com/design/DAGNOvOTZvU/pWFmnir9-DcyV_ALeLVWxg/edit?utm_content=DAGNOvOTZvU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 
 ## Members & Contact Information:
