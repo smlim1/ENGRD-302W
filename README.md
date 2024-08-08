@@ -37,10 +37,10 @@ Next Steps: We would like to explore additional factors that may contribute to t
 
 U.S. Department of Education College Scorecard: https://collegescorecard.ed.gov/data/
 
+Technical Documentation and Explanation of Dataset: https://collegescorecard.ed.gov/assets/InstitutionDataDocumentation.pdf
+
 ## Featured Notebooks/Analysis/Deliverables
-* [Notebook/Markdown/Slide Deck Title](link)
-* [Notebook/Markdown/Slide DeckTitle](link)
-* [Blog Post](link)
+* Slide Deck: https://www.canva.com/design/DAGNOvOTZvU/pWFmnir9-DcyV_ALeLVWxg/edit?utm_content=DAGNOvOTZvU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 
 ## Members & Contact Information:
